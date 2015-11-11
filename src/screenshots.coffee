@@ -7,6 +7,10 @@ Q = require 'q'
 _ = require 'lodash'
 
 capabilityString = ''
+browserName=''
+platform=''
+version=''
+
 capabilities = null
 browser.getCapabilities().then (returnValue) ->
     capabilities = returnValue.caps_
@@ -20,7 +24,8 @@ browser.getCapabilities().then (returnValue) ->
 disableScreenshots = browser.params['disableScreenshots']
 screenshotBase = browser.params['screenshotsBasePath'] || '.'
 
-screenshotSizes = browser.params['screenshotSizes'] 
+screenshotSizes = browser.params['screenshotSizes']
+
 
 matchesCapabilities = (other) ->
     excludeKeys = ['sizes']
@@ -31,6 +36,9 @@ matchesCapabilities = (other) ->
 
         return capabilities[key] == value
 
+deriveDirFromCapabilities = (platform,browserName,version) ->
+    return "#{platform}-#{browserName}-#{version}";
+
 getPath = (suite) ->
     buildName = (suite) ->
         prefix = ''
@@ -38,7 +46,8 @@ getPath = (suite) ->
             prefix = "#{buildName(suite.parentSuite)} "
         return "#{prefix}#{suite.description}"
 
-    return "#{screenshotBase}/#{slug(buildName(suite))}/#{slug(capabilityString)}"
+    return "#{screenshotBase}/#{slug(buildName(suite))}/#{slug(deriveDirFromCapabilities(platform,browserName,version))}"
+
 
 matchScreenshot = (spec, screenshotName, screenshot) ->
     path = getPath(spec.suite)

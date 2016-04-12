@@ -1,4 +1,5 @@
 ## Quick overview
+Warning: This is a modified version with shorter dirnames for chrome (only major version) 
 Install with
 ```
 npm install protractor-screenshots

@@ -25,6 +25,9 @@ disableScreenshots = browser.params['disableScreenshots']
 screenshotBase = browser.params['screenshotsBasePath'] || '.'
 
 screenshotSizes = browser.params['screenshotSizes']
+dirnameFunction = browser.params['dirnameFunction']
+
+resemblejsOutputSettings = browser.params["resemblejsOutputSettings"]
 
 
 matchesCapabilities = (other) ->
@@ -37,7 +40,17 @@ matchesCapabilities = (other) ->
         return capabilities[key] == value
 
 deriveDirFromCapabilities = (platform,browserName,version) ->
-    return "#{platform}-#{browserName}-#{version}";
+    if not dirnameFunction
+        return "#{platform}-#{browserName}-#{shortenVersion(platform,browserName,version)}"
+    return dirnameFunction(platform,browserName,version)
+
+shortenVersion = (platform,browserName,version) ->
+    sver=version.toString()
+    if(browserName.toLowerCase()=="chrome")
+        idx=sver.indexOf('.')
+        if(idx>-1)
+            sver=sver.substr(0,idx)+".x"
+    return sver
 
 getPath = (suite) ->
     buildName = (suite) ->
@@ -57,7 +70,7 @@ matchScreenshot = (spec, screenshotName, screenshot) ->
 
     return Q.fcall () ->
         if not spec.suite._screenshotsInitialized
-            # Clear the old failure shots
+# Clear the old failure shots
             return Q.all([
                 Q.nfcall(rimraf, path + '/missing'),
                 Q.nfcall(rimraf, path + '/failed'),
@@ -70,12 +83,14 @@ matchScreenshot = (spec, screenshotName, screenshot) ->
 
         return Q.nfcall(fs.readFile, path + '/' + filename)
     .then (data) ->
-        # Fast check via string matching
+# Fast check via string matching
         if screenshot.data == data.toString('base64')
             return { match: true }
 
         # Didn't match, but now we will check using resemblejs
         deferred = Q.defer()
+        if resemblejsOutputSettings
+            resemble.outputSettings( resemblejsOutputSettings )
         resemble(new Buffer(screenshot.data, 'base64'))
         .compareTo(data)
         .onComplete (result) ->
@@ -174,3 +189,6 @@ exports.checkScreenshot = (spec, screenshotName, delay={}, beforeEach) ->
     beforeEach = beforeEach || () ->
 
     return takeScreenshot(spec, screenshotName, delay, beforeEach)
+
+exports._deriveDirFromCapabilities = (platform,browserName,version) ->
+    return deriveDirFromCapabilities(platform,browserName,version)

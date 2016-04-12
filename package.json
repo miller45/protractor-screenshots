@@ -1,15 +1,15 @@
 {
-  "name": "protractor-screenshots",
+  "name": "protractor-screenshots-shortdir",
   "version": "0.0.8",
-  "description": "Integrates protractor and webdriver to let tests take and compare screenshots at different sizes.",
+  "description": "Integrates protractor and webdriver to let tests take and compare screenshots at different sizes. This a modifed version which uses short dir names for chrome",
   "main": "lib/screenshots.js",
   "scripts": {
     "test": "(cd test && bash test.sh)"
   },
-  "author": "Michael Bertolacci",
+  "author": "Michael Bertolacci, Ramon Klein",
   "repository": {
     "type": "git",
-    "url": "git://github.com/burnsred/protractor-screenshots"
+    "url": "git://github.com/miller45/protractor-screenshots"
   },
   "license": "ISC",
   "dependencies": {
